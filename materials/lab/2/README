@@ -1,19 +1,9 @@
-# Lab 2
-Due: Feb 11 2022
 
-1. Update Your Forked Repository
-2. Navigate to > materials > lab > 2
-3. bhg-scanner folder has
-   1. main > main.go : in this folder `go build` then `./main`
-   2. scanner > scanner.go and scanner_test.go  : in this folder `go test`
-4. Complete the TODO's listed in scanner > scanner.go
-5. Make one major other modification to the code; update/add a test or two
-6. Update the README file in bhg-scanner that describes, 1 what the code does, modification to the code (based on the todos) AND includes details of the modification you chose to make in #5
-
-
-Submit: 
-
-
-1. Captured Output (csv file)
-2. Screen Capture of timing information (e.g.,> time ./YourBinary )
-3. Link to your updated code in your github repository (should be publically accessible) 
+1)The code scans a number of ports and returns the number of open and closed ports based on the presence of error using the net.DialTimeout package.
+2) TODO 1: method to build and run the code 
+   TODO 2: replace the default timeout with a designated timeout 
+   TODO 3: add close ports to track the closed ports along with the open ports
+   TODO 4: used for tuning. the time for 1000 was much higher (600.08 s) compared to 1 (2.154 s)
+   TODO 5: take a variable for the number of ports to scan and use comma to separate the output
+   TODO 6: return the total number of open and closed ports scanned
+3) The modification I chose was to use a variable which can be altered as an input from the user to assign the number of ports instead of using the fixed value of 1024.
