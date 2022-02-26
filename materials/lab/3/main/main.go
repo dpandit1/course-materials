@@ -23,8 +23,7 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-
-	var nextPage string	
+		var nextPage string	
 	var page int
 	var minify bool
 	fmt.Println("Do you want to enter the new page (y/n)?")
