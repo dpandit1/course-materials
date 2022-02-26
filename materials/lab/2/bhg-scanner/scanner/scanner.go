@@ -2,7 +2,7 @@
 // Code : https://github.com/blackhat-go/bhg/blob/c27347f6f9019c8911547d6fc912aa1171e6c362/ch-2/tcp-scanner-final/main.go
 // License: {$RepoRoot}/materials/BHG-LICENSE
 // Useage:
-// {TODO 1: FILL IN}
+// {TODO 1: FILL IN} navigate to the main folder and run "go build" to compile the program. Then, go to the scanner folder and run "go test" in the terminal
 
 package scanner
 
@@ -33,7 +33,7 @@ func worker(ports, results chan int) {
 // med: easy + return  complex data structure(s?) (maps or slices) containing the ports.
 // hard: restructuring code - consider modification to class/object 
 // No matter what you do, modify scanner_test.go to align; note the single test currently fails
-func PortScanner() (int,int) {  
+func PortScanner(total int) (int,int) {  
 	//TODO 3 : ADD closed ports; currently code only tracks open ports
 	var openports []int  // notice the capitalization here. access limited!
 	var closedports []int
@@ -46,12 +46,12 @@ func PortScanner() (int,int) {
 	}
 
 	go func() {
-		for i := 1; i <= 1024; i++ {
+		for i := 1; i <= total; i++ {
 			ports <- i
 		}
 	}()
 
-	for i := 0; i < 1024; i++ {
+	for i := 0; i < total; i++ {
 		port := <-results
 		if port > 0 {
 			openports = append(openports, port)
