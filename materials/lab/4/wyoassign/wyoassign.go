@@ -7,30 +7,31 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"strconv"
-
 )
 
 type Response struct{
-	Assignments []Assignment `json:"assignments"`
+	Classes []Class `json:"classes"`
 }
 
-type Assignment struct {
+type Class struct {
 	Id string `json:"id"`
-	Title string `json:"title`
+	Name string `json:"name`
+	Instructor string `json:"instructor`
 	Description string `json:"desc"`
-	Points int `json:"points"`
+	Number int `json:"number"`	
 }
 
-var Assignments []Assignment
+var Classes []Class
 const Valkey string = "FooKey"
 
-func InitAssignments(){
-	var assignmnet Assignment
-	assignmnet.Id = "Mike1A"
-	assignmnet.Title = "Lab 4 "
-	assignmnet.Description = "Some lab this guy made yesteday?"
-	assignmnet.Points = 20
-	Assignments = append(Assignments, assignmnet)
+func InitClasses(){
+	var clas Class
+	clas.Id = "65A"
+	clas.Name = "Physics "
+	clas.Instructor = "Albert Einstein"
+	clas.Description = "Learn Physics"
+	clas.Number = 30	
+	Classes = append(Classes, clas)
 }
 
 func APISTATUS(w http.ResponseWriter, r *http.Request) {
@@ -40,11 +41,11 @@ func APISTATUS(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func GetAssignments(w http.ResponseWriter, r *http.Request) {
+func GetClasses(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Entering %s end point", r.URL.Path)
 	var response Response
 
-	response.Assignments = Assignments
+	response.Classes = Classes
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -59,15 +60,15 @@ func GetAssignments(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
-func GetAssignment(w http.ResponseWriter, r *http.Request) {
+func GetClass(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Entering %s end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	params := mux.Vars(r)
 
-	for _, assignment := range Assignments {
-		if assignment.Id == params["id"]{
-			json.NewEncoder(w).Encode(assignment)
+	for _, class := range Classes {
+		if class.Id == params["id"]{
+			json.NewEncoder(w).Encode(class)
 			break
 		}
 	}
@@ -75,7 +76,7 @@ func GetAssignment(w http.ResponseWriter, r *http.Request) {
 	//w.Write(jsonResponse)
 }
 
-func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
+func DeleteClass(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Entering %s DELETE end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/txt")
 	w.WriteHeader(http.StatusOK)
@@ -84,9 +85,9 @@ func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 	response := make(map[string]string)
 
 	response["status"] = "No Such ID to Delete"
-	for index, assignment := range Assignments {
-			if assignment.Id == params["id"]{
-				Assignments = append(Assignments[:index], Assignments[index+1:]...)
+	for index, class := range Classes {
+			if class.Id == params["id"]{
+				Classes = append(Classes[:index], Classes[index+1:]...)
 				response["status"] = "Success"
 				break
 			}
@@ -99,31 +100,42 @@ func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
-func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
+func UpdateClass(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Entering %s end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
 	
 	var response Response
-	response.Assignments = Assignments
+	var clas Class
+	response.Classes = Classes
+	params := mux.Vars(r)
 
-
-
+	for index, class := range Classes {
+		if class.Id == params["id"]{
+			clas.Id =  r.FormValue("id")
+			clas.Name =  r.FormValue("name")
+			clas.Instructor = r.FormValue("instructor")
+			clas.Description =  r.FormValue("desc")
+			clas.Number, _ =  strconv.Atoi(r.FormValue("number"))
+			Classes = append(Classes, clas)
+			Classes = append(Classes[:index], Classes[index+1:]...)
+		}
+	}
 }
 
-func CreateAssignment(w http.ResponseWriter, r *http.Request) {
+func CreateClass(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var assignmnet Assignment
+	var clas Class
 	r.ParseForm()
 	// Possible TODO: Better Error Checking!
 	// Possible TODO: Better Logging
 	if(r.FormValue("id") != ""){
-		assignmnet.Id =  r.FormValue("id")
-		assignmnet.Title =  r.FormValue("title")
-		assignmnet.Description =  r.FormValue("desc")
-		assignmnet.Points, _ =  strconv.Atoi(r.FormValue("points"))
-		Assignments = append(Assignments, assignmnet)
+		clas.Id =  r.FormValue("id")
+		clas.Name =  r.FormValue("name")
+		clas.Instructor = r.FormValue("instructor")
+		clas.Description =  r.FormValue("desc")
+		clas.Number, _ =  strconv.Atoi(r.FormValue("number"))
+		Classes = append(Classes, clas)
 		w.WriteHeader(http.StatusCreated)
 	}
 	w.WriteHeader(http.StatusNotFound)
-
 }
