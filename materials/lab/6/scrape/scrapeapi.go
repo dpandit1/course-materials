@@ -25,23 +25,29 @@ import (
 func walkFn(w http.ResponseWriter) filepath.WalkFunc {
     return func(path string, f os.FileInfo, err error) error {
         w.Header().Set("Content-Type", "application/json")	
-				
+		count := 0 		
         for _, r := range regexes {
             if r.MatchString(path) {      
 				var tfile FileInfo       
                 dir, filename := filepath.Split(path)	
                 tfile.Filename = string(filename)
-                tfile.Location = string(dir)				
-				Files = append(Files, tfile)
-				for temp_file, q := range Files{
-					x1 := strings.Compare(tfile.Filename, temp_file.Filename)	
-					x2 := strings.Compare(tfile.Location, temp_file.Location)						
-					//TODO_5: As it currently stands the same file can be added to the array more than once 
-					//TODO_5: Prevent this from happening by checking if the file AND location already exist as a single record					
-					if x1 != 0 || x2 !=0 {
-						Files = append(Files, tfile)
+                tfile.Location = string(dir)	
+				flag := 0
+				count = count + 1
+				if count>1{
+					for _, temp_file := range Files{					
+						x1 := strings.Compare(tfile.Filename, temp_file.Filename)	
+						x2 := strings.Compare(tfile.Location, temp_file.Location)						
+						//TODO_5: As it currently stands the same file can be added to the array more than once 
+						//TODO_5: Prevent this from happening by checking if the file AND location already exist as a single record					
+						if x1 == 0 && x2 ==0 {
+							flag = 1
+							break
+						}
 					}
-				}						
+				}	
+				if flag == 0 {
+					Files = append(Files, tfile)}					
 				
 				track := len(Files)
                 if w != nil && track>0 {
@@ -58,7 +64,7 @@ func walkFn(w http.ResponseWriter) filepath.WalkFunc {
 
             }
 
-        }		
+        }			
         return nil
     }
 
