@@ -1,4 +1,4 @@
-package final.go 
+package main
 
 import(
 	"flag"
