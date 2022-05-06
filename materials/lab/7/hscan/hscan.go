@@ -3,17 +3,16 @@ package hscan
 import (
 	"bufio"
 	"crypto/md5"
-	"crypto/sha256"
-	"errors"
+	"crypto/sha256"	
 	"fmt"
 	"log"
 	"os"
 )
 
 //==========================================================================\\
-
-var shalookup map[string]string
-var md5lookup map[string]string
+//shallokup and md5lookup are defined inside the GenHashMaps function
+//var shalookup map[string]string 
+//var md5lookup map[string]string
 
 func GuessSingle(sourceHash string, filename string) {
 
@@ -30,15 +29,19 @@ func GuessSingle(sourceHash string, filename string) {
 
 		// TODO - From the length of the hash you should know which one of these to check ...
 		// add a check and logicial structure
-
+		
 		hash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
-		if hash == sourceHash {
-			fmt.Printf("[+] Password found (MD5): %s\n", password)
+		if len(sourceHash) == 32 {
+			if hash == sourceHash{
+				fmt.Printf("[+] Password found (MD5): %s\n", password)
+			}
 		}
 
 		hash = fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
-		if hash == sourceHash {
-			fmt.Printf("[+] Password found (SHA-256): %s\n", password)
+		if len(sourceHash) == 64 {
+			if hash == sourceHash{
+				fmt.Printf("[+] Password found (SHA-256): %s\n", password)
+			}
 		}
 	}
 
@@ -47,8 +50,28 @@ func GuessSingle(sourceHash string, filename string) {
 	}
 }
 
-func GenHashMaps(filename string) {
+func GenHashMaps(filename string) {		
+	
+	md5lookup:= make(map[string]string)
+	shalookup:= make(map[string]string)
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer f.Close()
 
+	scanner := bufio.NewScanner(f)
+	
+	for scanner.Scan() {
+		password := scanner.Text()
+		mhash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+		shash := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
+		md5lookup[mhash] = password
+		shalookup[shash] = password				
+	}
+	fmt.Println("md5:\t", md5lookup)
+	fmt.Println("\n sha256:\t", shalookup)	
+	
 	//TODO
 	//itterate through a file (look in the guessSingle function above)
 	//rather than check for equality add each hash:passwd entry to a map SHA and MD5 where the key = hash and the value = password
@@ -61,7 +84,7 @@ func GenHashMaps(filename string) {
 	// 2. Compute the time per password (hint the number of passwords for each file is listed on the site...)
 }
 
-func GetSHA(hash string) (string, error) {
+/*func GetSHA(hash string) (string, error) {
 	password, ok := shalookup[hash]
 	if ok {
 		return password, nil
@@ -75,5 +98,13 @@ func GetSHA(hash string) (string, error) {
 
 //TODO
 func GetMD5(hash string) (string, error) {
-	return "", errors.New("not implemented")
-}
+	password, ok := md5lookup[hash]
+	if ok {
+		return password, nil
+
+	} else {
+
+		return "", errors.New("password does not exist")
+
+	}
+}*/
