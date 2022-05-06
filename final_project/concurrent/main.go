@@ -12,7 +12,7 @@ import(
 
 func main(){
 	flag.Parse()
-	// find the initial directory
+	// check the directory
 	roots := flag.Args()
 	if len(roots) == 0 {
 		roots = []string{"."}
@@ -20,11 +20,12 @@ func main(){
 
 	now := time.Now()
 
+	//initiate a channel of type int64
 	fileSizes := make(chan int64)
-	var n sync.WaitGroup
+	var n sync.WaitGroup //used for multiple go routines
 	for _, root := range roots{
 		n.Add(1)
-		go walkDir(root, &n, fileSizes)
+		go walkDir(root, &n, fileSizes) //go routine
 	}
 
 	go func(){
@@ -48,18 +49,19 @@ func printDiskUsage(nfiles, nbytes int64){
 
 func walkDir(dir string, n *sync.WaitGroup, fileSizes chan<- int64) {
 	time.Sleep(100 * time.Millisecond)
-	defer n.Done()
+	defer n.Done() //indicates the end of the go routines
 	for _, entry:= range dirents(dir) {
 		if entry.IsDir() {
 			n.Add(1)
 			subdir := filepath.Join(dir, entry.Name())
-			go walkDir(subdir, n, fileSizes)
+			go walkDir(subdir, n, fileSizes) //go routine
 		} else{
 			fileSizes <- entry.Size()
 		}
 	}	
 }
 
+//semaphore is to limit concurrncy in the dirents function
 var sema = make (chan struct{}, 20)
 
 func dirents(dir string) []os.FileInfo {
